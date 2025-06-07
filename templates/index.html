@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Portfolio Recommendation for Beginners</title>
+    <style>
+      /* classy glass cards + subtle hover */
+      .glass-card{
+        background:rgba(255,255,255,0.92);
+        -webkit-backdrop-filter:blur(14px);
+        backdrop-filter:blur(14px);
+        border-radius:1.5rem;
+        box-shadow:0 12px 28px rgba(0,0,0,.08);
+        border:1px solid rgba(99,102,241,.15);
+      }
+      tr:hover td{background:rgba(243,244,255,.55);}
+    </style>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Charts -->
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Icon -->
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/css/uicons-bold-rounded.css'>
+
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-br from-indigo-50 to-sky-100 flex flex-col"
+  >
+    <!-- ───────────────────────── Intro Screen ───────────────────────── -->
+    <div
+      id="introScreen"
+      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% text-white text-center p-8"
+    >
+      <h1 class="text-4xl md:text-6xl font-extrabold mb-6 drop-shadow-lg"
+        data-aos="zoom-in" data-aos-duration="800">
+        ระบบแนะนำการลงทุน
+      </h1>
+      <p class="text-lg md:text-2xl mb-10 max-w-2xl leading-relaxed"
+        data-aos="fade-up" data-aos-delay="150">
+        สร้างพอร์ตโฟลิโอส่วนบุคคลด้วยโมเดล Black-Litterman + AI<br />
+        ประเมินความเสี่ยงก่อนเริ่มลงทุนอย่างมั่นใจ
+      </p>
+      <button
+        id="getStartedBtn"
+        class="bg-gradient-to-r from-indigo-500 to-sky-500 hover:brightness-110 text-white px-10 py-4 rounded-full text-lg font-bold shadow-xl transition"
+        data-aos="fade-up" data-aos-delay="300">
+        เริ่มทำแบบประเมิน
+      </button>
+    </div>
+
+    <main id="appContent" class="container mx-auto max-w-4xl flex-1 p-4">
+      <!-- ───────────────────────── header ───────────────────────── -->
+      <header class="mb-8 text-center" data-aos="fade-up" data-aos-delay="100">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2 text-blue-800">
+          Portfolio Recommendation for Beginners
+        </h1>
+        <p class="text-gray-600">
+          Personalized investment recommendations powered by AI and the
+          Black‑Litterman model
+        </p>
+      </header>
+
+      <!-- ───────────────── Investment Settings ───────────────── -->
+      <section id="investDetails"
+         class="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl ring-1 ring-gray-200/40 p-8 mb-10 hidden"
+         data-aos="fade-up" data-aos-offset="200"
+      >
+        <h2 class="text-2xl font-semibold text-center mb-6">
+          Investment Details
+        </h2>
+        <div class="p-6 bg-gray-50 rounded-lg shadow-sm">
+          <label
+            class="block mb-2 font-semibold text-gray-600"
+            for="userIdInput"
+            >User ID</label
+          >
+          <input
+            id="userIdInput"
+            type="text"
+            placeholder="yourname123"
+            required
+            class="border border-gray-300 rounded w-full p-3 mb-4 focus:ring focus:ring-blue-200 focus:border-blue-500"
+          />
+
+          <label
+            class="block mb-2 font-semibold text-gray-600"
+            for="capitalInput"
+            >Investment Capital (THB)</label
+          >
+          <input
+            id="capitalInput"
+            type="number"
+            value="100000"
+            min="1000"
+            class="border border-gray-300 rounded w-full p-3 mb-6 focus:ring focus:ring-blue-200 focus:border-blue-500"
+          />
+
+          <div class="flex justify-center">
+            <button
+              id="getPortfolioBtn"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-md transition"
+            >
+              สร้างพอร์ตโฟลิโอของฉัน
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────────────── Risk Assessment (fullscreen) ───────────────── -->
+      <section
+        id="riskSurvey"
+        class="fixed inset-0 z-40 bg-white overflow-y-auto flex flex-col p-6 md:p-10"
+      >
+        <h2 class="text-2xl md:text-3xl font-semibold text-center mb-6">
+          ประเมินระดับความเสี่ยงของคุณ (Risk Tolerance)
+        </h2>
+
+        <!-- Progress -->
+        <div
+          class="flex items-center justify-between max-w-4xl mx-auto w-full mb-6"
+        >
+          <span id="progressLabel" class="text-sm font-medium text-gray-600"
+            >ข้อที่ 1 / 10</span
+          >
+          <div class="flex-1 mx-4 bg-gray-200 h-2 rounded-full">
+            <div
+          id="progressBar"
+          class="h-2 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 shadow-inner transition-all duration-500"
+          style="width: 10%"
+        ></div>
+          </div>
+        </div>
+
+        <form id="surveyForm" class="w-full max-w-4xl mx-auto space-y-10">
+          <!-- Each question wrapped in .question-step -->
+
+          <!-- Q1 -->
+          <div class="question-step" data-aos="fade-up">
+            <fieldset
+              class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm"
+            >
+              <legend
+                class="font-medium text-xl text-gray-800 mb-6 text-center"
+              >
+                1. ปัจจุบันคุณอายุเท่าใด?
+              </legend>
+              <div class="grid grid-cols-1 gap-4">
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q1"
+                    value="1"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">ตั้งแต่ 60 ปีขึ้นไป</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q1"
+                    value="2"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">45–59 ปี</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q1"
+                    value="3"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">35–44 ปี</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q1"
+                    value="4"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">น้อยกว่า 35 ปี</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Q2 -->
+          <div
+            class="question-step hidden transition-all duration-500 transform"
+          >
+            <fieldset
+              class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm"
+            >
+              <legend
+                class="font-medium text-xl text-gray-800 mb-6 text-center"
+              >
+                2.
+                ปัจจุบันท่านมีภาระทางการเงินและค่าใช้จ่ายประจำ เช่น ค่าผ่อนบ้าน รถ ค่าใช้จ่ายส่วนตัว และค่าเลี้ยงดูครอบครัวเป็นสัดส่วนเท่าใด
+              </legend>
+              <div class="grid grid-cols-1 gap-4">
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q2"
+                    value="4"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">มากกว่าร้อยละ 75 ของรายได้ทั้งหมด</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q2"
+                    value="3"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">ระหว่างร้อยละ 50 ถึงร้อยละ 75 ของรายได้ทั้งหมด</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q2"
+                    value="2"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">ตั้งแต่ร้อยละ 25 แต่น้อยกว่าร้อยละ 50 ของรายได้ทั้งหมด</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q2"
+                    value="1"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">น้อยกว่าร้อยละ 25 ของรายได้ทั้งหมด</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Q3 -->
+          <div
+            class="question-step hidden transition-all duration-500 transform"
+          >
+            <fieldset
+              class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm"
+            >
+              <legend
+                class="font-medium text-xl text-gray-800 mb-6 text-center"
+              >
+                3. ท่านมีสถานภาพทางการเงินในปัจจุบันอย่างไร
+              </legend>
+              <div class="grid grid-cols-1 gap-4">
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q3"
+                    value="1"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">มีทรัพย์สินน้อยกว่าหนี้สิน</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q3"
+                    value="2"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">มีทรัพย์สินเท่ากับหนี้สิน</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q3"
+                    value="3"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">มีทรัพย์สินมากกว่าหนี้สิน</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q3"
+                    value="4"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700"
+                    >มีความมั่นใจว่ามีเงินออมหรือเงินลงทุนเพียงพอสำหรับการใช้ชีวิตหลังเกษียณอายุแล้ว</span
+                  >
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Q4 (checkbox) -->
+          <div
+            class="question-step hidden transition-all duration-500 transform"
+          >
+            <fieldset
+              class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm"
+            >
+              <legend
+                class="font-medium text-xl text-gray-800 mb-6 text-center"
+              >
+                4. ท่านเคยมีประสบการณ์หรือมีความรู้ในการลงทุนในทรัพย์สินกลุ่มใดต่อไปนี้บ้าง (เลือกได้มากกว่า 1 ข้อ)
+              </legend>
+              <div class="grid grid-cols-1 gap-4">
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="checkbox"
+                    name="q4"
+                    value="1"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">เงินฝากธนาคาร</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="checkbox"
+                    name="q4"
+                    value="2"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700"
+                    >พันธบัตรรัฐบาล/กองทุนพันธบัตร</span
+                  >
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="checkbox"
+                    name="q4"
+                    value="3"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">หุ้นกู้/กองทุนตราสารหนี้</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="checkbox"
+                    name="q4"
+                    value="4"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700"
+                    >หุ้นสามัญหรือกองทุนรวมหุ้นหรือสินทรัพย์อื่นที่มีความเสี่ยงสูง</span
+                  >
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Q5 -->
+          <div
+            class="question-step hidden transition-all duration-500 transform"
+          >
+            <fieldset
+              class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm"
+            >
+              <legend
+                class="font-medium text-xl text-gray-800 mb-6 text-center"
+              >
+                5.
+                ระยะเวลาที่คุณคาดว่าจะไม่มีความจำเป็นต้องใช้เงินลงทุนนี้คือเท่าใด?
+              </legend>
+              <div class="grid grid-cols-1 gap-4">
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q5"
+                    value="1"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">ไม่เกิน 1 ปี</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q5"
+                    value="2"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">ตั้งแต่ 1 แต่น้อยกว่า 3 ปี</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q5"
+                    value="3"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">3 ถึง 5 ปี</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q5"
+                    value="4"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">มากกว่า 5 ปี</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Q6 -->
+          <div
+            class="question-step hidden transition-all duration-500 transform"
+          >
+            <fieldset
+              class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm"
+            >
+              <legend
+                class="font-medium text-xl text-gray-800 mb-6 text-center"
+              >
+                6. ความสามารถในการรับความเสี่ยงของท่านคือ
+              </legend>
+              <div class="grid grid-cols-1 gap-4">
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q6"
+                    value="1"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700"
+                    >เน้นเงินต้นต้องปลอดภัยและได้รับผลตอบแทนสม่ำเสมอแต่ต่ำได้</span
+                  >
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q6"
+                    value="2"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700"
+                    >เน้นโอกาสได้รับผลตอบแทนที่สม่ำเสมอแต่อาจเสี่ยงที่จะสูญเสียเงินต้นได้บ้าง </span
+                  >
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q6"
+                    value="3"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700"
+                    >เน้นโอกาสได้รับผลตอบแทนที่สูงขึ้นแต่อาจเสี่ยงที่จะสูญเสียเงินต้นได้มากขึ้น</span
+                  >
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q6"
+                    value="4"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700"
+                    >เน้นผลตอบแทนสูงสุดในระยะยาวแต่อาจเสี่ยงที่จะสูญเงินต้นส่วนใหญ่ได้ </span
+                  >
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Q7 -->
+          <div
+            class="question-step hidden transition-all duration-500 transform"
+          >
+            <fieldset
+              class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm"
+            >
+              <legend
+                class="font-medium text-xl text-gray-800 mb-6 text-center"
+              >
+                7. ท่านเต็มใจที่จะลงทุนในกลุ่มการลงทุนใดมากที่สุด
+              </legend>
+              <div class="grid grid-cols-1 gap-4">
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q7"
+                    value="1"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">กลุ่มการลงทุนที่ 1 มีโอกาสได้รับผลตอบแทน 2.5% โดยไม่ขาดทุนเลย</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q7"
+                    value="2"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">กลุ่มการลงทุนที่ 2 มีโอกาสได้รับผลตอบแทนสูงสุด 7% แต่อาจมีผลขาดทุนได้ถึง 1%</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q7"
+                    value="3"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">กลุ่มการลงทุนที่ 3 มีโอกาสได้รับผลตอบแทนสูงสุด 15% แต่อาจมีผลขาดทุนได้ถึง 5%</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q7"
+                    value="4"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">กลุ่มการลงทุนที่ 4 มีโอกาสได้รับผลตอบแทนสูงสุด 25% แต่อาจมีผลขาดทุนได้ถึง 15%</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Q8 -->
+          <div
+            class="question-step hidden transition-all duration-500 transform"
+          >
+            <fieldset
+              class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm"
+            >
+              <legend
+                class="font-medium text-xl text-gray-800 mb-6 text-center"
+              >
+                8. ถ้าท่านเลือกลงทุนในทรัพย์สินที่มีโอกาสได้รับผลตอบแทนมากแต่มีโอกาสขาดทุนสูงด้วยเช่นกัน ท่านจะรู้สึกอย่างไร
+              </legend>
+              <div class="grid grid-cols-1 gap-4">
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q8"
+                    value="1"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">กังวลและตื่นตระหนกกลัวขาดทุน</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q8"
+                    value="2"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">ไม่สบายใจแต่พอเข้าใจได้บ้าง</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q8"
+                    value="3"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">เข้าใจและรับความผันผวนได้ในระดับหนึ่ง</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q8"
+                    value="4"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">ไม่กังวลกับโอกาสขาดทุนสูงและหวังกับผลตอบแทนที่อาจจะได้รับสูงขึ้น</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Q9 -->
+          <div
+            class="question-step hidden transition-all duration-500 transform"
+          >
+            <fieldset
+              class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm"
+            >
+              <legend
+                class="font-medium text-xl text-gray-800 mb-6 text-center"
+              >
+                9. ท่านจะรู้สึกกังวล/รับไม่ได้เมื่อมูลค่าเงินลงทุนของท่านมีการปรับตัวลดลงในสัดส่วนเท่าใด
+              </legend>
+              <div class="grid grid-cols-1 gap-4">
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q9"
+                    value="1"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">5% หรือน้อยกว่า</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q9"
+                    value="2"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">มากกว่า 5% ถึง 10%</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q9"
+                    value="3"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">มากกว่า 10% ถึง 20%</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q9"
+                    value="4"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">มากกว่า 20% ขึ้นไป</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Q10 -->
+          <div
+            class="question-step hidden transition-all duration-500 transform"
+          >
+            <fieldset
+              class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm"
+            >
+              <legend
+                class="font-medium text-xl text-gray-800 mb-6 text-center"
+              >
+                10. หากปีที่แล้วท่านลงทุนไป 100,000 บาท ปีนี้ท่านพบว่ามูลค่าเงินลงทุนลดลงเหลือ 85,000 บาท ท่านจะทำอย่างไร
+              </legend>
+              <div class="grid grid-cols-1 gap-4">
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q10"
+                    value="1"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">ตกใจและต้องการขายการลงทุนที่เหลือทิ้ง</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q10"
+                    value="2"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">กังวลใจและจะปรับเปลี่ยนการลงทุนบางส่วนไปในทรัพย์สินที่เสี่ยงน้อยลง</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q10"
+                    value="3"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">อดทนถือต่อไปได้ และรอผลตอบแทนปรับตัวกลับมา</span>
+                </label>
+                <label
+                  class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                >
+                  <input
+                    type="radio"
+                    name="q10"
+                    value="4"
+                    class="w-5 h-5 accent-blue-600"
+                  />
+                  <span class="text-gray-700">ยังมั่นใจเพราะเข้าใจว่าต้องลงทุนระยะยาวและจะเพิ่มเงินลงทุนในแบบเดิมเพื่อเฉลี่ยต้นทุน</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+        </form>
+
+        <!-- Navigation buttons -->
+        <div class="flex justify-between mt-8">
+          <button
+            type="button"
+            id="prevBtn"
+            class="bg-white text-blue-600 border border-blue-500 px-6 py-3 rounded-lg font-semibold shadow-sm hover:bg-blue-50 transition-all duration-300 disabled:opacity-40 disabled:hover:bg-white"
+          >
+            <span class="flex items-center"
+              ><svg
+                class="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                ></path>
+              </svg>
+              ย้อนกลับ</span
+            >
+          </button>
+          <button
+            type="button"
+            id="nextBtn"
+            class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg font-semibold shadow-md transition-all duration-300"
+          >
+            <span class="flex items-center"
+              >ถัดไป
+              <svg
+                class="w-5 h-5 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path></svg
+            ></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Loading + Result placeholder -->
+      <div id="loadingIndicator" class="hidden text-center py-12">
+        <div
+          class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
+        ></div>
+        <span class="ml-3 text-gray-600">กำลังสร้างพอร์ตโฟลิโอ…</span>
+      </div>
+      <div id="result" class="hidden"></div>
+      <div id="summary" class="text-center my-6"></div>
+      <section id="aboutSection" class="bg-white rounded-lg shadow-md p-6 mt-8" data-aos="fade-up" data-aos-offset="300">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">
+          About Our Portfolio Recommendation
+        </h2>
+        <div class="prose max-w-none text-gray-700">
+          <p>
+            เครื่องมือนี้ใช้ทฤษฎีพอร์ตโฟลิโอสมัยใหม่ร่วมกับการคาดการณ์ด้วย AI
+            เพื่อสร้างแผนการลงทุนส่วนบุคคล:
+          </p>
+          <ul class="list-disc pl-5 mt-2 space-y-2">
+            <li>
+              <strong>Black-Litterman Model:</strong> Combines market
+              equilibrium with AI-generated views
+            </li>
+            <li>
+              <strong>Machine Learning Ensemble:</strong> Uses multiple
+              algorithms to predict stock performance
+            </li>
+            <li>
+              <strong>Risk-Based Optimization:</strong> Tailors allocation based
+              on your risk tolerance
+            </li>
+            <li>
+              <strong>NASDAQ-100 Focus:</strong> Selects stocks from top
+              tech-oriented companies
+            </li>
+          </ul>
+          <p class="mt-4 text-sm text-gray-500">
+            หมายเหตุ:
+            เครื่องมือนี้ให้คำแนะนำด้านการศึกษาเท่านั้นและไม่ถือเป็นคำแนะนำทางการเงิน
+            โปรดทำการวิจัยด้วยตนเองก่อนลงทุนเสมอ
+          </p>
+        </div>
+      </section>
+    </main>
+    <!-- Fixed back-button (hidden by default) -->
+    <button id="BackBtn"
+        class="fixed top-4 left-4 z-50 bg-white/80 backdrop-blur-lg
+               border border-blue-500 text-blue-700 font-semibold
+               px-4 py-2 rounded-lg shadow-lg hidden" data-aos="fade-down"><i class="fi fi-br-angle-left"></i>
+        ย้อนกลับไปแบบสอบถาม
+    </button>
+    <footer class="text-center text-gray-500 text-sm py-6">
+      © 2025 Portfolio Recommender — educational use only
+    </footer>
+
+    <!-- AOS script -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- ───────────────── SCRIPTS ───────────────── -->
+    <script>
+      /***************** GLOBAL STATE ******************/
+      window.investPeriod = "medium"; // short / medium / long
+      /***************** HELPERS ***********************/
+      const mapTimeframe = () => {
+        const ans = document.querySelector('input[name="q5"]:checked');
+        if (!ans) return "medium";
+        const v = +ans.value;
+        if (v <= 2) return "short";
+        if (v === 3) return "medium";
+        return "long";
+      };
+      
+      /* ── Global Go-Back handler ── */
+      function goBackToSurvey(){
+        document.getElementById("result").classList.add("hidden");
+        document.getElementById("summary").innerHTML = "";
+
+        // ซ่อนหน้า Investment + About
+        document.getElementById("investDetails").classList.add("hidden");
+        document.getElementById("aboutSection").classList.add("hidden");
+
+        // กลับไปแสดง Survey
+        document.getElementById("riskSurvey").classList.remove("hidden");
+        document.getElementById("BackBtn").classList.add("hidden");
+
+        window.scrollTo({top:0,behavior:"smooth"});
+      }
+      /***************** DOM READY *********************/
+      document.addEventListener("DOMContentLoaded", () => {
+        AOS.init({ once: true });
+        const backBtnFixed = document.getElementById("BackBtn");
+        backBtnFixed.onclick = goBackToSurvey;
+        /* ---------- Intro → Survey ---------- */
+        document.getElementById("getStartedBtn").onclick = () => {
+          document.getElementById("introScreen").classList.add("hidden");
+          document.getElementById("appContent").classList.remove("hidden");
+          document.getElementById("riskSurvey").classList.remove("hidden");
+        };
+
+        /* ---------- Question wizard ---------- */
+        const steps = Array.from(document.querySelectorAll(".question-step"));
+        let stepIndex = 0;
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const progressBar = document.getElementById("progressBar");
+        const progressLbl = document.getElementById("progressLabel"); 
+
+        const renderStep = () => {
+          steps.forEach((s, i) =>
+            s.classList.toggle("hidden", i !== stepIndex)
+          );
+          prevBtn.disabled = stepIndex === 0;
+          progressBar.style.width =
+            ((stepIndex + 1) / steps.length) * 100 + "%";
+          progressLbl.textContent = `ข้อที่ ${stepIndex + 1} / ${steps.length}`;
+          nextBtn.textContent =
+            stepIndex === steps.length - 1 ? "ประมวลผล" : "ถัดไป";
+          if (window.AOS) AOS.refresh();
+        };
+        renderStep();
+
+        prevBtn.onclick = () => {
+          if (stepIndex > 0) {
+            stepIndex--;
+            renderStep();
+          }
+        };
+        nextBtn.onclick = () => {
+          const qName = `q${stepIndex + 1}`;
+          if (qName === "q4") {
+            if (!document.querySelectorAll('input[name="q4"]:checked').length) {
+              alert("กรุณาเลือกอย่างน้อย 1 ตัวเลือก");
+              return;
+            }
+          } else if (
+            !document.querySelector(`input[name="${qName}"]:checked`)
+          ) {
+            alert("กรุณาเลือกคำตอบก่อนดำเนินการต่อ");
+            return;
+          }
+          if (stepIndex === steps.length - 1) finishSurvey();
+          else {
+            stepIndex++;
+            renderStep();
+          }
+        };
+
+        /* ---------- เมื่อประเมินความเสี่ยงเสร็จ ---------- */
+        function finishSurvey() {
+          window.investPeriod = mapTimeframe();
+
+          document.getElementById("riskSurvey").classList.add("hidden");
+          document.getElementById("investDetails").classList.remove("hidden");
+          document.getElementById("aboutSection").classList.remove("hidden");
+          document
+            .getElementById("investDetails")
+            .scrollIntoView({ behavior: "smooth" });
+          document.getElementById("BackBtn").classList.remove("hidden");
+        }
+
+        /* ---------- Generate portfolio ---------- */
+        document
+          .getElementById("getPortfolioBtn")
+          .addEventListener("click", getPortfolio);
+      });
+
+      /***************** PORTFOLIO FETCH *****************/
+      async function getPortfolio() {
+        const cap = +document.getElementById("capitalInput").value || 100000;
+        const user = encodeURIComponent(
+          document.getElementById("userIdInput").value || "guest"
+        );
+
+        const ans = [...Array(10).keys()].map(i=>{
+          const q = i+1;
+          if(q===4){
+            return [...document.querySelectorAll('input[name="q4"]:checked')]
+                    .map(cb=>cb.value).join("|");      // กรณีหลายค่า
+          }
+          return document.querySelector(`input[name="q${q}"]:checked`).value;
+        }).join(",");
+
+        const url = `/portfolio?user_id=${user}&capital=${cap}`+
+              `&timeframe=${window.investPeriod}`+
+              `&questionnaire=${encodeURIComponent(ans)}`;
+
+        document.getElementById("loadingIndicator").classList.remove("hidden");
+        document.getElementById("result").classList.add("hidden");
+
+        try {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error("server");
+          const data = await res.json();
+          renderResult(data);
+        } catch (e) {
+          alert("เกิดข้อผิดพลาด ลองใหม่");
+          console.error(e);
+        }
+        document.getElementById("loadingIndicator").classList.add("hidden");
+      }
+
+      /* ---------- render helpers ---------- */
+      function renderError() {
+        document.getElementById("result").innerHTML =
+          `<div class="bg-red-50 border-l-4 border-red-500 p-4">` +
+          `Error retrieving portfolio. Please try again.</div>`;
+        document.getElementById("result").classList.remove("hidden");
+      }
+
+      /* ---------- render helpers ---------- */
+      function renderResult(data){
+        /* ── Risk explanation ─────────── */
+        document.getElementById("summary").innerHTML =
+          `<h3 class="text-xl font-semibold text-blue-700 mb-4">
+             ${data.risk_explantion||""}
+           </h3>`;
+        
+        /* ── table rows ───────────────── */
+        const rows = (data.top20||[]).map(r=>`
+          <tr>
+            <td class="px-4 py-2 font-medium">${r.ticker}</td>
+            <td class="px-4 py-2 text-gray-600">${r.industry}</td>
+            <td class="px-4 py-2">${(r.weight*100).toFixed(2)} %</td>
+            <td class="px-4 py-2 font-medium">฿${r.money.toLocaleString()}</td>
+          </tr>`).join("");
+
+        const tableHTML = `
+          <div class="overflow-x-auto mb-6">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Ticker</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sector</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Weight</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Amount (฿)</th></tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                ${rows || `<tr><td colspan="4" class="px-4 py-4 text-center text-gray-500">No data</td></tr>`}
+              </tbody>
+            </table>
+          </div>`;
+      
+        /* ── pie chart ─────────────────── */
+        let pieHTML = "";
+        if(Array.isArray(data.chart_data) && data.chart_data.length){
+          const pieId = "portfolioPie";
+          pieHTML = `<div id="${pieId}" style="height:350px;" class="w-full mb-8"></div>`;
+          google.charts.load("current",{packages:["corechart"]});
+          google.charts.setOnLoadCallback(()=>{
+            const g = new google.visualization.DataTable();
+            g.addColumn("string","Ticker"); g.addColumn("number","Weight");
+            data.chart_data.forEach(p=>g.addRow([p.label,p.value]));
+            new google.visualization.PieChart(document.getElementById(pieId))
+              .draw(g,{pieHole:0.35,chartArea:{left:0,top:10,width:"100%",height:"80%"},legend:{position:"right"}});
+          });
+        }
+      
+        /* ── charts ──────────────── */
+        const plots = data.plots || {};
+        let plotHTML = "";
+        if (plots.weights) plotHTML += `<div id="plotWeights" class="w-full max-w-xl mx-auto my-6"></div>`;
+        if (plots.cov)     plotHTML += `<div id="plotCov"     class="w-full max-w-xl mx-auto my-6"></div>`;
+        if (plots.ef)      plotHTML += `<div id="plotEf"      class="w-full max-w-xl mx-auto my-6"></div>`;
+      
+      
+        /* ── render all ─────────────────── */
+        const resDiv = document.getElementById("result");
+        resDiv.innerHTML = `
+          <div class="bg-white rounded-lg shadow-md p-6">
+            ${tableHTML}
+            ${pieHTML}
+            ${plotHTML}
+          </div>`;
+        if (plots.weights)
+          Plotly.newPlot("plotWeights", plots.weights.data, plots.weights.layout,{displayModeBar:true});
+        if (plots.cov)
+          Plotly.newPlot("plotCov",     plots.cov.data,     plots.cov.layout,    {displayModeBar:true});
+        if (plots.ef)
+          Plotly.newPlot("plotEf",      plots.ef.data,      plots.ef.layout,     {displayModeBar:true});
+        resDiv.classList.remove("hidden");
+
+      }
+    </script>
+  </body>
+</html>
